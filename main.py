@@ -1,7 +1,118 @@
 import streamlit as st
 import streamlit_folium
 
-st.markdown("""
+cards_data = [
+    {
+        "title": "The Laurels at Greentree Ridge",
+        "img": "https://lh3.googleusercontent.com/p/AF1QipNMdg8lLBIb4Z1KSaHLb9-Xs6tSOl25SRLHht7d=s680-w680-h510-rw",
+        "details": "Details for Card 1",
+        "bar": "green",
+        "price": "$1,200",
+        "ratings": "4.5",
+        "location": "35.6160252, -82.3240143",
+        "food_ratings": "4.1",
+        "staff_ratings": "3.9",
+        "atmosphere_ratings": "4.5",
+        "cleanliness_ratings": "4.2",
+        "safety_ratings": "3.8",
+        "dogs_allowed": "true",
+        "nursing_care_ratings": "4.7",
+    },
+    {
+        "title": "North Carolina Veterans Home",
+        "img": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqPB2Q3vGcHAmQKd7hk7weg7ZD99Ru2QYyMDdzFwKj1UUdh78znKKYjJN_JrA-wwqFH97dxhjHgjCIlVx6TR5QZ_XxEIrf-lWbtI706CDBWFOxPj6m3KfHkj12JwffBdmC5gqO2=w408-h272-k-no",
+        "details": "Details for Card 2",
+        "bar": "red",
+        "price": "$950",
+        "ratings": "4.2",
+        "location": "35.5951, -82.3515",
+        "food_ratings": "3.7",
+        "staff_ratings": "4.2",
+        "atmosphere_ratings": "4.0",
+        "cleanliness_ratings": "3.8",
+        "safety_ratings": "4.1",
+        "dogs_allowed": "false",
+        "nursing_care_ratings": "4.3",
+    },
+    {
+        "title": "Swannanoa Valley Health and Rehabilitation",
+        "img": "https://lh3.googleusercontent.com/p/AF1QipMyacgg_i4PymsystIyQDHQiSdR7uZqfnGKGQDU=w408-h306-k-no",
+        "details": "Details for Card 3",
+        "bar": "yellow",
+        "price": "$1,050",
+        "ratings": "4.0",
+        "location": "35.6000, -82.3550",
+        "food_ratings": "4.3",
+        "staff_ratings": "3.8",
+        "atmosphere_ratings": "4.2",
+        "cleanliness_ratings": "4.0",
+        "safety_ratings": "3.9",
+        "dogs_allowed": "true",
+        "nursing_care_ratings": "4.5",
+    },
+    {
+        "title": "Stonecreek Health and Rehabilitation",
+        "img": "https://lh3.googleusercontent.com/p/AF1QipPNS1U5cYxqhbtmNn3vWF9cs5mRTuQB6ANlkgl2=w408-h272-k-no",
+        "details": "Details for Card 4",
+        "bar": "green",
+        "price": "$1,100",
+        "ratings": "4.3",
+        "location": "35.6100, -82.3300",
+        "food_ratings": "4.0",
+        "staff_ratings": "4.1",
+        "atmosphere_ratings": "3.9",
+        "cleanliness_ratings": "4.4",
+        "safety_ratings": "4.2",
+        "dogs_allowed": "false",
+        "nursing_care_ratings": "4.6",
+    },
+    {
+        "title": "Mountain Ridge Wellness Center",
+        "img": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4npxb-KMwen-EKTZSGo0rSAZQfCKVe3Cl4NBwWDSDsoFuyk8Yy82e3VapmUnQUeJhQQ9saSMFy4tg4CoKPypuVqQA6cOZq1BrkwWdFeWIUe0HExuP1RBuMW7utFwpb0zYKBGRgkc=w408-h725-k-no",
+        "details": "Details for Card 5",
+        "bar": "yellow",
+        "price": "$1,250",
+        "ratings": "4.6",
+        "location": "35.6200, -82.3300",
+        "food_ratings": "3.9",
+        "staff_ratings": "4.0",
+        "atmosphere_ratings": "4.4",
+        "cleanliness_ratings": "4.1",
+        "safety_ratings": "4.3",
+        "dogs_allowed": "true",
+        "nursing_care_ratings": "4.8",
+    },
+    {
+        "title": "Riverbend Health and Rehabilatation",
+        "img": "https://lh3.googleusercontent.com/p/AF1QipNLnUNKscqOLiEEFPCIJlY3az7j5LOCxlx6r7Xk=w408-h270-k-no",
+        "details": "Details for Card 6",
+        "bar": "red",
+        "price": "$900",
+        "ratings": "3.9",
+        "location": "35.6250, -82.3200",
+        "food_ratings": "4.2",
+        "staff_ratings": "3.7",
+        "atmosphere_ratings": "4.1",
+        "cleanliness_ratings": "3.9",
+        "safety_ratings": "4.0",
+        "dogs_allowed": "false",
+        "nursing_care_ratings": "4.4",
+    },
+]
+
+
+features_object = {
+    "food_ratings": "4.1",
+    "staff_ratings": "3.9",
+    "atmosphere_ratings": "4.5",
+    "cleanliness_ratings": "4.2",
+    "safety_ratings": "3.8",
+    "dogs_allowed": "true",
+    "nursing_care_ratings": "4.7",
+}
+
+st.markdown(
+    """
 <style>
 /* Make Streamlit main container wider */
 .block-container {
@@ -10,7 +121,7 @@ st.markdown("""
 	max-width: 98vw !important;
 }
 
-/* Flex container for map and cards */
+/* Flex container for map and cards_data */
 .main-flex-row {
 	display: flex;
 	flex-direction: row;
@@ -40,66 +151,64 @@ st.markdown("""
 	padding-right: 0 !important;
 }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 
-# --- COLUMN LAYOUT: MAP LEFT, CARDS RIGHT ---
+# --- COLUMN LAYOUT: MAP LEFT, cards_data RIGHT ---
 col1, col2 = st.columns([1, 2])
 
 with col1:
-	st.title("Map of Your Location by Zipcode")
-	zipcode = st.text_input("Enter your zipcode:")
-	if zipcode:
-		import folium
-		import requests
-		from streamlit_folium import st_folium
-		url = f"https://nominatim.openstreetmap.org/search?postalcode={zipcode}&country=USA&format=json"
-		try:
-			response = requests.get(url, headers={"User-Agent": "streamlit-app"})
-			data = response.json()
-			if data:
-				lat = float(data[0]["lat"])
-				lon = float(data[0]["lon"])
-				st.success(f"Location found: {lat}, {lon}")
-				m = folium.Map(location=[lat, lon], zoom_start=13)
-				folium.Marker([lat, lon], popup=f"Zipcode: {zipcode}").add_to(m)
+    st.title("Map of Your Location by Zipcode")
+    zipcode = st.text_input("Enter your zipcode:")
+    selected_card_title = None
+    if zipcode:
+        import folium
+        import requests
+        from streamlit_folium import st_folium
 
-				# Add a pin for each card's location
-				card_locations = [
-					(card["title"], card["location"]) for card in (
-						[
-							{"title": "The Laurels at Greentree Ridge", "location": "35.6160252, -82.3240143"},
-							{"title": "Card 2", "location": "35.5951, -82.3515"},
-							{"title": "Card 3", "location": "35.6000, -82.3550"},
-							{"title": "Card 4", "location": "35.6100, -82.3400"},
-							{"title": "Card 5", "location": "35.6200, -82.3200"},
-							{"title": "Card 6", "location": "35.6250, -82.3300"},
-						]
-					)
-				]
-				for title, loc in card_locations:
-					latlon = [float(x.strip()) for x in loc.split(",")]
-					folium.Marker(latlon, popup=title, icon=folium.Icon(color="blue", icon="info-sign")).add_to(m)
+        url = f"https://nominatim.openstreetmap.org/search?postalcode={zipcode}&country=USA&format=json"
+        try:
+            response = requests.get(url, headers={"User-Agent": "streamlit-app"})
+            data = response.json()
+            if data:
+                lat = float(data[0]["lat"])
+                lon = float(data[0]["lon"])
+                st.success(f"Location found: {lat}, {lon}")
+                m = folium.Map(location=[lat, lon], zoom_start=13)
+                folium.Marker([lat, lon], popup=f"Zipcode: {zipcode}").add_to(m)
 
-				st_folium(m, width="100%", height=500)
-			else:
-				st.error("Could not find location for that zipcode.")
-		except Exception as e:
-			st.error(f"Error: {e}")
+                # Add a pin for each card's location with unique popup (title)
+                card_locations = [(card["title"], card["location"]) for card in cards_data]
+                for title, loc in card_locations:
+                    latlon = [float(x.strip()) for x in loc.split(",")]
+                    folium.Marker(latlon, popup=title, icon=folium.Icon(color="blue", icon="info-sign")).add_to(m)
+
+                # Use st_folium to get interaction data
+                map_data = st_folium(m, width="100%", height=500)
+                if map_data and map_data.get("last_object_clicked_popup"):
+                    selected_card_title = map_data["last_object_clicked_popup"]
+                    st.session_state["selected_card"] = selected_card_title
+                elif "selected_card" in st.session_state:
+                    selected_card_title = st.session_state["selected_card"]
+            else:
+                st.error("Could not find location for that zipcode.")
+        except Exception as e:
+            st.error(f"Error: {e}")
 
 with col2:
-	st.header("Image Card Grid with Hover Details")
-	cards = [
-		{"title": "The Laurels at Greentree Ridge", "img": "https://lh3.googleusercontent.com/p/AF1QipNMdg8lLBIb4Z1KSaHLb9-Xs6tSOl25SRLHht7d=s680-w680-h510-rw", "details": "Details for Card 1", "bar": "green", "price": "$1,200", "ratings": "4.5", "location": "35.6160252, -82.3240143"},
-		{"title": "Card 2", "img": "https://placekitten.com/201/200", "details": "Details for Card 2", "bar": "red", "price": "$950", "ratings": "4.2", "location": "35.5951, -82.5515"},
-		{"title": "Card 3", "img": "https://placekitten.com/202/200", "details": "Details for Card 3", "bar": "yellow", "price": "$1,050", "ratings": "4.0", "location": "35.6000, -82.5550"},
-		{"title": "Card 4", "img": "https://placekitten.com/203/200", "details": "Details for Card 4", "bar": "green", "price": "$1,100", "ratings": "4.3", "location": "35.6100, -82.5300"},
-		{"title": "Card 5", "img": "https://placekitten.com/204/200", "details": "Details for Card 5", "bar": "yellow", "price": "$1,250", "ratings": "4.6", "location": "35.6200, -82.5400"},
-		{"title": "Card 6", "img": "https://placekitten.com/205/200", "details": "Details for Card 6", "bar": "red", "price": "$900", "ratings": "3.9", "location": "35.6250, -82.5200"},
-		]
-	
-	
-	st.markdown("""
+    st.markdown('<h2 style="text-align:center; margin-bottom: 1.5rem;">Nursing Home Facilities Near By</h2>', unsafe_allow_html=True)
+
+    # Show all cards_data, but highlight the selected one if a pin was clicked
+    selected_card_title = st.session_state.get("selected_card", None)
+    cards_to_show = cards_data
+    if selected_card_title:
+        st.markdown(f"**Selected card:** {selected_card_title}")
+        st.button("Show all cards_data", on_click=lambda: st.session_state.pop("selected_card", None))
+
+    st.markdown(
+        """
 	<style>
 	.card-grid {
 		display: flex;
@@ -116,7 +225,13 @@ with col2:
 		box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 		overflow: hidden;
 		background: #fff;
-		transition: transform 0.2s;
+		transition: transform 0.2s, border 0.2s;
+		border: 3px solid transparent;
+	}
+	.card.selected {
+		border: 3px solid #1976d2;
+		box-shadow: 0 4px 16px rgba(25,118,210,0.15);
+		z-index: 3;
 	}
 	.card:hover {
 		transform: translateY(-8px) scale(1.03);
@@ -140,7 +255,7 @@ with col2:
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: rgba(0,0,0,0.7);
+		background: rgba(0,0,0,0.35);
 		color: #fff;
 		text-align: center;
 		padding: 8px 12px 8px 12px;
@@ -167,7 +282,7 @@ with col2:
 		z-index: 1;
 	}
 	.card:hover .card-details {
-		opacity: 1;
+		opacity: .73;
 	}
 	.mock-bar {
 		width: 80%;
@@ -181,17 +296,60 @@ with col2:
 	.mock-bar.red { background: #f44336; }
 	.mock-bar.yellow { background: #ffeb3b; }
 	</style>
-	""", unsafe_allow_html=True)
-	card_html = '<div class="card-grid">'
-	for card in cards:
-		card_html += f'<div class="card">'
-		card_html += f'<img src="{card["img"]}" class="card-img" />'
-		card_html += f'<div class="card-title">{card["title"]}</div>'
-		card_html += f'<div class="card-details">{card["details"]}<br/>'
-		card_html += f'<b>Price:</b> {card["price"] if "price" in card else "N/A"}<br/>'
-		card_html += f'<b>Rating:</b> {card["ratings"] if "ratings" in card else "N/A"}<br/>'
-		card_html += f'<div class="mock-bar {card["bar"]}"></div>'
-		card_html += '</div>'  # close card-details
-		card_html += '</div>'  # close card
-	card_html += '</div>'
-	st.markdown(card_html, unsafe_allow_html=True)
+	""",
+        unsafe_allow_html=True,
+    )
+    card_html = '<div class="card-grid">'
+    for card in cards_to_show:
+        selected_class = " selected" if selected_card_title and card["title"] == selected_card_title else ""
+        # Add onclick to set modal_card in session_state via a form
+        card_html += f'''<form action="#" method="post" style="display:inline;">
+		<button type="submit" name="modal_card" value="{card["title"]}" style="all:unset;cursor:pointer;width:100%;height:100%;">
+		<div class="card{selected_class}">
+		<img src="{card["img"]}" class="card-img" />
+		<div class="card-title">{card["title"]}</div>'''
+        card_html += f'<div class="card-details">{card["details"]}<br/>'
+        card_html += f"<b>Rating:</b> {card['ratings'] if 'ratings' in card else 'N/A'}<br/>"
+        if "dogs_allowed" in card:
+            allowed = "Yes" if str(card["dogs_allowed"]).lower() == "true" else "No"
+            card_html += f"<b>Dogs Allowed:</b> {allowed}<br/>"
+        card_html += f"<b>Atmosphere:</b> {card.get('atmosphere_ratings', 'N/A')}<br/>"
+        card_html += f"<b>Cleanliness:</b> {card.get('cleanliness_ratings', 'N/A')}<br/>"
+        card_html += f"<b>Safety:</b> {card.get('safety_ratings', 'N/A')}<br/>"
+        card_html += f"<b>Nursing Care:</b> {card.get('nursing_care_ratings', 'N/A')}<br/>"
+        card_html += f'<div class="mock-bar {card["bar"]}"></div>'
+        card_html += "</div></div></button></form>"
+    card_html += "</div>"
+    st.markdown(card_html, unsafe_allow_html=True)
+
+    # Handle modal_card form submission
+    if st.session_state.get("modal_card"):
+        st.session_state["modal_card"] = st.session_state["modal_card"]
+
+    # Modal logic: show modal if a card is clicked
+    modal_card = st.session_state.get("modal_card", None)
+    if modal_card:
+        card = next((c for c in cards_data if c["title"] == modal_card), None)
+        if card:
+            st.markdown(
+                f"""
+			<div style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.45);z-index:10000;display:flex;align-items:center;justify-content:center;">
+				<div style="background:#fff;padding:2rem 2.5rem;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.18);max-width:400px;width:90vw;position:relative;">
+					<button onclick="window.location.reload()" style="position:absolute;top:12px;right:16px;font-size:1.5rem;background:none;border:none;cursor:pointer;">&times;</button>
+					<img src='{card["img"]}' style='width:100%;border-radius:12px;margin-bottom:1rem;' />
+					<h3 style='margin:0 0 0.5rem 0;'>{card["title"]}</h3>
+					<div style='margin-bottom:0.5rem;'>{card["details"]}</div>
+					<b>Price:</b> {card["price"] if "price" in card else "N/A"}<br/>
+					<b>Rating:</b> {card["ratings"] if "ratings" in card else "N/A"}<br/>
+					<b>Dogs Allowed:</b> {("Yes" if str(card.get("dogs_allowed", "")).lower() == "true" else "No")}<br/>
+					<b>Food:</b> {card.get("food_ratings", "N/A")}<br/>
+					<b>Staff:</b> {card.get("staff_ratings", "N/A")}<br/>
+					<b>Atmosphere:</b> {card.get("atmosphere_ratings", "N/A")}<br/>
+					<b>Cleanliness:</b> {card.get("cleanliness_ratings", "N/A")}<br/>
+					<b>Safety:</b> {card.get("safety_ratings", "N/A")}<br/>
+					<b>Nursing Care:</b> {card.get("nursing_care_ratings", "N/A")}<br/>
+				</div>
+			</div>
+			""",
+                unsafe_allow_html=True,
+            )
