@@ -1,0 +1,6 @@
+streamlit
+streamlit-folium
+streamlit-elements
+st-clickable-images
+requests
+folium
