@@ -4,13 +4,19 @@ from streamlit_elements import elements
 
 from st_clickable_images import clickable_images
 
+from title import app_title
+import title
+
+title.sidebar_title()
+st.map(width=300)
+
 cards_data = [
     {
         "title": "The Laurels at Greentree Ridge",
         "img": "https://lh3.googleusercontent.com/p/AF1QipNMdg8lLBIb4Z1KSaHLb9-Xs6tSOl25SRLHht7d=s680-w680-h510-rw",
         "details": "Details for Card 1",
         "bar": "green",
-        "price": "$1,200",
+        # "price": "$1,200",
         "ratings": "4.5",
         "location": "35.6160252, -82.3240143",
         "food_ratings": "4.1",
@@ -26,7 +32,7 @@ cards_data = [
         "img": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4nqPB2Q3vGcHAmQKd7hk7weg7ZD99Ru2QYyMDdzFwKj1UUdh78znKKYjJN_JrA-wwqFH97dxhjHgjCIlVx6TR5QZ_XxEIrf-lWbtI706CDBWFOxPj6m3KfHkj12JwffBdmC5gqO2=w408-h272-k-no",
         "details": "Details for Card 2",
         "bar": "red",
-        "price": "$950",
+        # "price": "$950",
         "ratings": "4.2",
         "location": "35.5951, -82.3515",
         "food_ratings": "3.7",
@@ -42,7 +48,7 @@ cards_data = [
         "img": "https://lh3.googleusercontent.com/p/AF1QipMyacgg_i4PymsystIyQDHQiSdR7uZqfnGKGQDU=w408-h306-k-no",
         "details": "Details for Card 3",
         "bar": "yellow",
-        "price": "$1,050",
+        # "price": "$1,050",
         "ratings": "4.0",
         "location": "35.6000, -82.3550",
         "food_ratings": "4.3",
@@ -58,7 +64,7 @@ cards_data = [
         "img": "https://lh3.googleusercontent.com/p/AF1QipPNS1U5cYxqhbtmNn3vWF9cs5mRTuQB6ANlkgl2=w408-h272-k-no",
         "details": "Details for Card 4",
         "bar": "green",
-        "price": "$1,100",
+        # "price": "$1,100",
         "ratings": "4.3",
         "location": "35.6100, -82.3300",
         "food_ratings": "4.0",
@@ -74,7 +80,7 @@ cards_data = [
         "img": "https://lh3.googleusercontent.com/gps-cs-s/AC9h4npxb-KMwen-EKTZSGo0rSAZQfCKVe3Cl4NBwWDSDsoFuyk8Yy82e3VapmUnQUeJhQQ9saSMFy4tg4CoKPypuVqQA6cOZq1BrkwWdFeWIUe0HExuP1RBuMW7utFwpb0zYKBGRgkc=w408-h725-k-no",
         "details": "Details for Card 5",
         "bar": "yellow",
-        "price": "$1,250",
+        # "price": "$1,250",
         "ratings": "4.6",
         "location": "35.6200, -82.3300",
         "food_ratings": "3.9",
@@ -90,7 +96,7 @@ cards_data = [
         "img": "https://lh3.googleusercontent.com/p/AF1QipNLnUNKscqOLiEEFPCIJlY3az7j5LOCxlx6r7Xk=w408-h270-k-no",
         "details": "Details for Card 6",
         "bar": "red",
-        "price": "$900",
+        # "price": "$900",
         "ratings": "3.9",
         "location": "35.6250, -82.3200",
         "food_ratings": "4.2",
@@ -162,6 +168,7 @@ st.markdown(
 col1, col2 = st.columns([1, 2])
 
 with col1:
+    app_title()
     st.title("Map of Your Location by Zipcode")
     zipcode = st.text_input("Enter your zipcode:")
     selected_card_title = None
@@ -202,9 +209,19 @@ with col1:
 with col2:
     st.markdown('<h2 style="text-align:center; margin-bottom: 1.5rem;">Nursing Home Facilities Near By</h2>', unsafe_allow_html=True)
 
-    # Show all cards_data, but highlight the selected one if a pin was clicked
+    # Button to filter cards with rating >= 4.3
+    if "show_high_ratings" not in st.session_state:
+        st.session_state["show_high_ratings"] = False
+    if st.button("Show only 4.3+ ratings"):
+        st.session_state["show_high_ratings"] = True
+    if st.button("Show all ratings"):
+        st.session_state["show_high_ratings"] = False
+
     selected_card_title = st.session_state.get("selected_card", None)
-    cards_to_show = cards_data
+    if st.session_state["show_high_ratings"]:
+        cards_to_show = [card for card in cards_data if float(card.get("ratings", 0)) >= 4.3]
+    else:
+        cards_to_show = cards_data
     if selected_card_title:
         st.markdown(f"**Selected card:** {selected_card_title}")
         st.button("Show all cards_data", on_click=lambda: st.session_state.pop("selected_card", None))
@@ -304,7 +321,7 @@ with col2:
     # Use clickable_images for all cards
     image_urls = [card["img"] for card in cards_to_show]
     titles = [card["title"] for card in cards_to_show]
-    clicked_idx = clickable_images(image_urls, titles=titles, div_style={"display": "flex", "flex-wrap": "wrap", "gap": "20px", "justify-content": "center"}, img_style={"height": "220px", "border-radius": "12px", "box-shadow": "0 2px 8px rgba(0,0,0,0.1)", "margin": "10px"})
+    clicked_idx = clickable_images(image_urls, titles=titles, div_style={"display": "flex", "flex-wrap": "wrap", "gap": "20px", "justify-content": "center"}, img_style={"height": "220px", "width": "300px", "object-fit": "cover", "border-radius": "12px", "box-shadow": "0 2px 8px rgba(0,0,0,0.1)", "margin": "10px"})
     if clicked_idx > -1:
         card = cards_to_show[clicked_idx]
         st.markdown(
@@ -314,7 +331,7 @@ with col2:
         	        <img src='{card["img"]}' style='width:100%;border-radius:12px;margin-bottom:1rem;' />
         	        <h3 style='margin:0 0 0.5rem 0;'>{card["title"]}</h3>
         	        <div style='margin-bottom:0.5rem;'>{card["details"]}</div>
-        	        <b>Price:</b> {card["price"] if "price" in card else "N/A"}<br/>
+                     <!-- Price removed -->
         	        <b>Rating:</b> {card["ratings"] if "ratings" in card else "N/A"}<br/>
         	        <b>Dogs Allowed:</b> {("Yes" if str(card.get("dogs_allowed", "")).lower() == "true" else "No")}<br/>
         	        <b>Atmosphere:</b> {card.get("atmosphere_ratings", "N/A")}<br/>
