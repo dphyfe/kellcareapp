@@ -7,7 +7,7 @@ from st_clickable_images import clickable_images
 from title import app_title
 import title
 
-title.sidebar_title(title="kellcare app")
+title.sidebar_title(title="Kellcare Help Desk")
 
 
 cards_data = [
@@ -167,10 +167,43 @@ st.markdown(
 
 col1, col2 = st.columns([1, 2])
 
+
+def get_zipcodes_from_city(city, state_abbr="nc"):
+    """
+    Returns a list of zipcodes for a given city and state using the Zippopotam.us API.
+    """
+    import requests
+
+    url = f"http://api.zippopotam.us/us/{state_abbr.lower()}/{city.lower().replace(' ', '%20')}"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = response.json()
+            zipcodes = [place["post code"] for place in data["places"]]
+            return zipcodes
+        else:
+            return []
+    except Exception:
+        return []
+
+
 with col1:
     app_title()
     st.title("Map of Your Location by Zipcode")
     zipcode = st.text_input("Enter your zipcode:")
+    st.markdown("**Or enter a city and state to get a zipcode:**")
+    city = st.text_input("City name")
+    state_abbr = st.text_input("State abbreviation (e.g., NC)", value="NC")
+    if city:
+        zips = get_zipcodes_from_city(city, state_abbr)
+        if zips:
+            st.success(f"Zipcodes for {city.title()}, {state_abbr.upper()}: {', '.join(zips)}")
+            # Optionally, auto-fill the zipcode input with the first result
+            if not zipcode:
+                zipcode = zips[0]
+        else:
+            st.error("No zipcodes found for that city and state.")
+
     selected_card_title = None
     if zipcode:
         import folium
@@ -206,9 +239,8 @@ with col1:
         except Exception as e:
             st.error(f"Error: {e}")
 
-with col2:
-    st.markdown('<h2 style="text-align:center; margin-bottom: 1.5rem;">Nursing Home Facilities Near By</h2>', unsafe_allow_html=True)
 
+with col2:
     # Button to filter cards with rating >= 4.3
     if "show_high_ratings" not in st.session_state:
         st.session_state["show_high_ratings"] = False
@@ -331,8 +363,6 @@ with col2:
         st.session_state["show_modal"] = True
         st.session_state["modal_card"] = cards_to_show[clicked_idx]
 
-    # ...existing code...
-
     # Render modal if open
     if st.session_state.get("show_modal", False):
         card = st.session_state.get("modal_card", {})
@@ -394,5 +424,3 @@ with col2:
             if close_bg:
                 st.session_state["show_modal"] = False
                 st.session_state["modal_card"] = None
-
-# ...existing code...
