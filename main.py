@@ -7,8 +7,8 @@ from st_clickable_images import clickable_images
 from title import app_title
 import title
 
-title.sidebar_title()
-st.map(width=300)
+title.sidebar_title(title="kellcare app")
+
 
 cards_data = [
     {
@@ -322,24 +322,77 @@ with col2:
     image_urls = [card["img"] for card in cards_to_show]
     titles = [card["title"] for card in cards_to_show]
     clicked_idx = clickable_images(image_urls, titles=titles, div_style={"display": "flex", "flex-wrap": "wrap", "gap": "20px", "justify-content": "center"}, img_style={"height": "220px", "width": "300px", "object-fit": "cover", "border-radius": "12px", "box-shadow": "0 2px 8px rgba(0,0,0,0.1)", "margin": "10px"})
+    if "show_modal" not in st.session_state:
+        st.session_state["show_modal"] = False
+        st.session_state["modal_card"] = None
+
+    # When a card is clicked, open the modal and set the card
     if clicked_idx > -1:
-        card = cards_to_show[clicked_idx]
+        st.session_state["show_modal"] = True
+        st.session_state["modal_card"] = cards_to_show[clicked_idx]
+
+    # ...existing code...
+
+    # Render modal if open
+    if st.session_state.get("show_modal", False):
+        card = st.session_state.get("modal_card", {})
+
+        # Transparent button to close modal when clicking outside
         st.markdown(
-            f"""
-        	<div style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.45);z-index:10000;display:flex;align-items:center;justify-content:center;">
-        	    <div style="background:#fff;padding:2rem 2.5rem;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.18);max-width:400px;width:90vw;position:relative;">
-        	        <img src='{card["img"]}' style='width:100%;border-radius:12px;margin-bottom:1rem;' />
-        	        <h3 style='margin:0 0 0.5rem 0;'>{card["title"]}</h3>
-        	        <div style='margin-bottom:0.5rem;'>{card["details"]}</div>
-                     <!-- Price removed -->
-        	        <b>Rating:</b> {card["ratings"] if "ratings" in card else "N/A"}<br/>
-        	        <b>Dogs Allowed:</b> {("Yes" if str(card.get("dogs_allowed", "")).lower() == "true" else "No")}<br/>
-        	        <b>Atmosphere:</b> {card.get("atmosphere_ratings", "N/A")}<br/>
-        	        <b>Cleanliness:</b> {card.get("cleanliness_ratings", "N/A")}<br/>
-        	        <b>Safety:</b> {card.get("safety_ratings", "N/A")}<br/>
-        	        <b>Nursing Care:</b> {card.get("nursing_care_ratings", "N/A")}<br/>
-        	    </div>
-        	</div>
-        	""",
+            """
+            <style>
+            .modal-bg-btn {
+                position: fixed;
+                top: 0; left: 0; width: 100vw; height: 100vh;
+                background: rgba(0,0,0,0.45);
+                border: none;
+                z-index: 10000;
+                cursor: pointer;
+                padding: 0;
+                margin: 0;
+            }
+            .modal-content {
+                position: fixed;
+                top: 50%; left: 50%;
+                transform: translate(-50%, -50%);
+                background: #fff;
+                padding: 2rem 2.5rem;
+                border-radius: 16px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+                max-width: 400px;
+                width: 90vw;
+                z-index: 10002;
+            }
+            </style>
+            """,
             unsafe_allow_html=True,
         )
+
+        # Use a form to allow two buttons in a row
+        with st.form("modal_form", clear_on_submit=True):
+            # Invisible button as background
+            close_bg = st.form_submit_button("", help="Click outside modal to close", use_container_width=True)
+            # Modal content
+            st.markdown(
+                f"""
+                <div class='modal-content'>
+                    <img src='{card.get("img", "")}' style='width:100%;border-radius:12px;margin-bottom:1rem;' />
+                    <h3 style='margin:0 0 0.5rem 0;'>{card.get("title", "")}</h3>
+                    <div style='margin-bottom:0.5rem;'>{card.get("details", "")}</div>
+                    <b>Rating:</b> {card.get("ratings", "N/A")}<br/>
+                    <b>Dogs Allowed:</b> {("Yes" if str(card.get("dogs_allowed", "")).lower() == "true" else "No")}<br/>
+                    <b>Atmosphere:</b> {card.get("atmosphere_ratings", "N/A")}<br/>
+                    <b>Cleanliness:</b> {card.get("cleanliness_ratings", "N/A")}<br/>
+                    <b>Safety:</b> {card.get("safety_ratings", "N/A")}<br/>
+                    <b>Nursing Care:</b> {card.get("nursing_care_ratings", "N/A")}<br/>
+                    <br/>
+                    <button type="submit" name="close_modal" style="margin-top:1rem;background:#1976d2;color:#fff;padding:0.5rem 1.5rem;border:none;border-radius:8px;cursor:pointer;">Close Modal Card</button>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+            if close_bg:
+                st.session_state["show_modal"] = False
+                st.session_state["modal_card"] = None
+
+# ...existing code...
