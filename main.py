@@ -6,8 +6,11 @@ from st_clickable_images import clickable_images
 
 from title import app_title
 import title
+from sidebar import Sidebar
 
-title.sidebar_title(title="Kellcare Help Desk")
+
+Sidebar()
+# Add About page link to sidebar
 
 
 cards_data = [
