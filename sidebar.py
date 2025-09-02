@@ -12,6 +12,24 @@ class Sidebar:
         self.show_friendliness_slider()
         self.show_ratings_sliders()
 
+        # Inject CSS to make only sidebar sliders pink
+        st.sidebar.markdown(
+            """
+            <style>
+            /* Make only sidebar sliders pink */
+            section[data-testid="stSidebar"] div[data-baseweb="slider"] [class*="Track"],
+            section[data-testid="stSidebar"] div[data-baseweb="slider"] [class*="Rail"],
+            section[data-testid="stSidebar"] div[data-baseweb="slider"] [class*="Thumb"],
+            section[data-testid="stSidebar"] div[data-baseweb="slider"] [role="slider"] {
+                background: #ff0099 !important;
+                border-color: #ff0099 !important;
+                box-shadow: 0 0 2px #ff0099, 0 0 4px #ff0099;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
+
     def show_ratings_sliders(self):
         st.sidebar.markdown("---")
         st.sidebar.markdown("### Rate Facility Features")

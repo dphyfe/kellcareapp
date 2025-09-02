@@ -9,7 +9,9 @@ import title
 from sidebar import Sidebar
 
 
+title.sidebar_title(title="Kellcare Help Desk")
 Sidebar()
+
 # Add About page link to sidebar
 
 
@@ -162,6 +164,50 @@ st.markdown(
     padding-left: 0 !important;
     padding-right: 0 !important;
 }
+
+/* Custom slider color: #ff0099 */
+div[data-baseweb="slider"] [class^="css-"][class*="-Rail"] {
+    background: #ff0099 !important;
+}
+div[data-baseweb="slider"] [class^="css-"][class*="-Track"] {
+    background: #ff0099 !important;
+}
+div[data-baseweb="slider"] [class^="css-"][class*="-Thumb"] {
+    background: #ff0099 !important;
+    border-color: #ff0099 !important;
+}
+</style>
+<style>
+/* Pink accent for buttons, checkboxes, radios, progress bars, links, focus, etc. */
+/* Buttons */
+button[kind], .stButton>button {
+    background-color: #ff0099 !important;
+    border-color: #ff0099 !important;
+}
+button[kind]:hover, .stButton>button:hover {
+    background-color: #e60087 !important;
+    border-color: #e60087 !important;
+}
+/* Checkbox and radio */
+input[type="checkbox"]:checked + div, input[type="radio"]:checked + div {
+    background-color: #ff0099 !important;
+    border-color: #ff0099 !important;
+}
+/* Progress bar */
+.stProgress > div > div > div > div {
+    background-color: #ff0099 !important;
+}
+/* Links */
+a, .stMarkdown a {
+    color: #ff0099 !important;
+}
+a:hover, .stMarkdown a:hover {
+    color: #e60087 !important;
+}
+/* Focus ring */
+*:focus {
+    outline-color: #ff0099 !important;
+}
 </style>
 """,
     unsafe_allow_html=True,
@@ -244,13 +290,14 @@ with col1:
 
 
 with col2:
-    # Button to filter cards with rating >= 4.3
+    # Move ratings filter buttons to the sidebar
     if "show_high_ratings" not in st.session_state:
         st.session_state["show_high_ratings"] = False
-    if st.button("Show only 4.3+ ratings"):
-        st.session_state["show_high_ratings"] = True
-    if st.button("Show all ratings"):
-        st.session_state["show_high_ratings"] = False
+    with st.sidebar:
+        if st.button("Show only 4.3+ ratings"):
+            st.session_state["show_high_ratings"] = True
+        if st.button("Show all ratings"):
+            st.session_state["show_high_ratings"] = False
 
     selected_card_title = st.session_state.get("selected_card", None)
     if st.session_state["show_high_ratings"]:
@@ -365,6 +412,10 @@ with col2:
     if clicked_idx > -1:
         st.session_state["show_modal"] = True
         st.session_state["modal_card"] = cards_to_show[clicked_idx]
+
+    # ...existing code...
+
+    # ...existing code...
 
     # Render modal if open
     if st.session_state.get("show_modal", False):
