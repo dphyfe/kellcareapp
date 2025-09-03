@@ -242,8 +242,8 @@ with col1:
     st.title("Map of Your Location by Zipcode")
     zipcode = st.text_input("Enter your zipcode:")
     st.markdown("**Or enter a city and state to get a zipcode:**")
-    city = st.text_input("City name")
-    state_abbr = st.text_input("State abbreviation (e.g., NC)", value="NC")
+    city = st.text_input("City name", placeholder="city", value="black mountain")
+    state_abbr = st.text_input("State abbreviation (e.g., NC)", placeholder="state", value="NC")
     if city:
         zips = get_zipcodes_from_city(city, state_abbr)
         if zips:
