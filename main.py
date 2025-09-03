@@ -8,8 +8,9 @@ from title import app_title
 import title
 from sidebar import Sidebar
 
+from colors import MINT_BASE, MINT_DARK, MINT_DARKER, MINT_LIGHT, MINT_LIGHTER, MINT_DARKEST
 
-title.sidebar_title(title="Kellcare Help Desk")
+
 Sidebar()
 
 # Add About page link to sidebar
@@ -126,34 +127,34 @@ features_object = {
 }
 
 st.markdown(
-    """
+    f"""
 <style>
 /* Make Streamlit main container wider */
-.block-container {
+.block-container {{
     padding-left: 1.5rem !important;
     padding-right: 1.5rem !important;
     max-width: 98vw !important;
-}
+}}
 
 /* Flex container for map and cards_data */
-.main-flex-row {
+.main-flex-row {{
     display: flex;
     flex-direction: row;
     gap: 2rem;
     align-items: flex-start;
     width: 100%;
-}
-.map-container {
+}}
+.map-container {{
     width: 100%;
     min-width: 0;
     max-width: 100%;
     flex: 1 1 0;
-}
-.card-grid-container {
+}}
+.card-grid-container {{
     flex: 3 1 0;
     width: 100%;
-}
-.card-grid {
+}}
+.card-grid {{
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
@@ -163,51 +164,51 @@ st.markdown(
     margin-right: 0 !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
-}
+}}
 
-/* Custom slider color: #ff0099 */
-div[data-baseweb="slider"] [class^="css-"][class*="-Rail"] {
-    background: #ff0099 !important;
-}
-div[data-baseweb="slider"] [class^="css-"][class*="-Track"] {
-    background: #ff0099 !important;
-}
-div[data-baseweb="slider"] [class^="css-"][class*="-Thumb"] {
-    background: #ff0099 !important;
-    border-color: #ff0099 !important;
-}
+/* Custom slider color: MINT_BASE */
+div[data-baseweb="slider"] [class^="css-"][class*="-Rail"] {{
+    background: {MINT_BASE} !important;
+}}
+div[data-baseweb="slider"] [class^="css-"][class*="-Track"] {{
+    background: {MINT_BASE} !important;
+}}
+div[data-baseweb="slider"] [class^="css-"][class*="-Thumb"] {{
+    background: {MINT_DARK} !important;
+    border-color: {MINT_DARK} !important;
+}}
 </style>
 <style>
-/* Pink accent for buttons, checkboxes, radios, progress bars, links, focus, etc. */
+/* Mint accent for buttons, checkboxes, radios, progress bars, links, focus, etc. */
 /* Buttons */
-button[kind], .stButton>button {
-    background-color: #ff0099 !important;
-    border-color: #ff0099 !important;
-}
-button[kind]:hover, .stButton>button:hover {
-    background-color: #e60087 !important;
-    border-color: #e60087 !important;
-}
+button[kind], .stButton>button {{
+    background-color: {MINT_DARKER} !important;
+    border-color: {MINT_DARKER} !important;
+}}
+button[kind]:hover, .stButton>button:hover {{
+    background-color: {MINT_DARKEST} !important;
+    border-color: {MINT_DARKEST} !important;
+}}
 /* Checkbox and radio */
-input[type="checkbox"]:checked + div, input[type="radio"]:checked + div {
-    background-color: #ff0099 !important;
-    border-color: #ff0099 !important;
-}
+input[type="checkbox"]:checked + div, input[type="radio"]:checked + div {{
+    background-color: {MINT_BASE} !important;
+    border-color: {MINT_BASE} !important;
+}}
 /* Progress bar */
-.stProgress > div > div > div > div {
-    background-color: #ff0099 !important;
-}
+.stProgress > div > div > div > div {{
+    background-color: {MINT_BASE} !important;
+}}
 /* Links */
-a, .stMarkdown a {
-    color: #ff0099 !important;
-}
-a:hover, .stMarkdown a:hover {
-    color: #e60087 !important;
-}
+a, .stMarkdown a {{
+    color: {MINT_DARK} !important;
+}}
+a:hover, .stMarkdown a:hover {{
+    color: {MINT_DARKER} !important;
+}}
 /* Focus ring */
-*:focus {
-    outline-color: #ff0099 !important;
-}
+*:focus {{
+    outline-color: {MINT_BASE} !important;
+}}
 </style>
 """,
     unsafe_allow_html=True,
@@ -290,15 +291,6 @@ with col1:
 
 
 with col2:
-    # Move ratings filter buttons to the sidebar
-    if "show_high_ratings" not in st.session_state:
-        st.session_state["show_high_ratings"] = False
-    with st.sidebar:
-        if st.button("Show only 4.3+ ratings"):
-            st.session_state["show_high_ratings"] = True
-        if st.button("Show all ratings"):
-            st.session_state["show_high_ratings"] = False
-
     selected_card_title = st.session_state.get("selected_card", None)
     if st.session_state["show_high_ratings"]:
         cards_to_show = [card for card in cards_data if float(card.get("ratings", 0)) >= 4.3]
@@ -330,8 +322,8 @@ with col2:
             border: 3px solid transparent;
         }
         .card.selected {
-            border: 3px solid #1976d2;
-            box-shadow: 0 4px 16px rgba(25,118,210,0.15);
+            border: 3px solid {MINT_DARKER};
+            box-shadow: 0 4px 16px {MINT_LIGHTER};
             z-index: 3;
         }
         .card:hover {
@@ -393,9 +385,9 @@ with col2:
             background: #eee;
             overflow: hidden;
         }
-        .mock-bar.green { background: #4caf50; }
-        .mock-bar.red { background: #f44336; }
-        .mock-bar.yellow { background: #ffeb3b; }
+    .mock-bar.green { background: {MINT_DARK}; }
+    .mock-bar.red { background: {MINT_DARKER}; }
+    .mock-bar.yellow { background: {MINT_BASE}; }
         </style>
         """,
         unsafe_allow_html=True,
@@ -470,7 +462,7 @@ with col2:
                     <b>Safety:</b> {card.get("safety_ratings", "N/A")}<br/>
                     <b>Nursing Care:</b> {card.get("nursing_care_ratings", "N/A")}<br/>
                     <br/>
-                    <button type="submit" name="close_modal" style="margin-top:1rem;background:#1976d2;color:#fff;padding:0.5rem 1.5rem;border:none;border-radius:8px;cursor:pointer;">Close Modal Card</button>
+                    <button type="submit" name="close_modal" style="margin-top:1rem;background:{MINT_DARKER};color:#fff;padding:0.5rem 1.5rem;border:none;border-radius:8px;cursor:pointer;">Close Modal Card</button>
                 </div>
                 """,
                 unsafe_allow_html=True,

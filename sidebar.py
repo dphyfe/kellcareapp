@@ -1,30 +1,61 @@
 import streamlit as st
-import title
 
-
-title.sidebar_title(title="Kellcare Help Desk")
+from colors import MINT_BASE, MINT_DARK, MINT_DARKER, MINT_DARKEST
 
 
 class Sidebar:
     def __init__(self):
+        # Sidebar title at the very top
+        from title import sidebar_title
+
+        sidebar_title(title="Kellcare Help Desk")
+
+        # Ratings filter buttons at the very top of the sidebar
+        if "show_high_ratings" not in st.session_state:
+            st.session_state["show_high_ratings"] = False
+        if st.sidebar.button("Show only 4.3+ ratings", key="show_high_ratings_btn"):
+            st.session_state["show_high_ratings"] = True
+        if st.sidebar.button("Show all ratings", key="show_all_ratings_btn"):
+            st.session_state["show_high_ratings"] = False
+
         self.show_testimonials()
         self.show_five_star_reviews()
         self.show_friendliness_slider()
         self.show_ratings_sliders()
+        self.show_dogs_allowed()
 
-        # Inject CSS to make only sidebar sliders pink
+        # Inject CSS to make only sidebar sliders and buttons use MINT_DARKEST
         st.sidebar.markdown(
-            """
+            f"""
             <style>
-            /* Make only sidebar sliders pink */
-            section[data-testid="stSidebar"] div[data-baseweb="slider"] [class*="Track"],
-            section[data-testid="stSidebar"] div[data-baseweb="slider"] [class*="Rail"],
-            section[data-testid="stSidebar"] div[data-baseweb="slider"] [class*="Thumb"],
-            section[data-testid="stSidebar"] div[data-baseweb="slider"] [role="slider"] {
-                background: #ff0099 !important;
-                border-color: #ff0099 !important;
-                box-shadow: 0 0 2px #ff0099, 0 0 4px #ff0099;
-            }
+            /* Sidebar slider track, rail, thumb, and text use mint palette */
+            section[data-testid='stSidebar'] div[data-baseweb='slider'] [class*='Track'],
+            section[data-testid='stSidebar'] div[data-baseweb='slider'] [class*='Rail'] {{
+                background: {MINT_BASE} !important;
+            }}
+            section[data-testid='stSidebar'] div[data-baseweb='slider'] [class*='Thumb'],
+            section[data-testid='stSidebar'] div[data-baseweb='slider'] [role='slider'] {{
+                background: {MINT_DARKER} !important;
+                border-color: {MINT_DARKER} !important;
+                box-shadow: 0 0 2px {MINT_DARKER}, 0 0 4px {MINT_DARKER};
+            }}
+            /* Slider value text and label */
+            section[data-testid='stSidebar'] .css-1c7y2kd, /* value */
+            section[data-testid='stSidebar'] .css-1y4p8pa, /* label */
+            section[data-testid='stSidebar'] label {{
+                color: {MINT_DARKEST} !important;
+            }}
+            /* Make all sidebar buttons mint darkest */
+            section[data-testid='stSidebar'] button {{
+                background-color: {MINT_DARKEST} !important;
+                border-color: {MINT_DARKEST} !important;
+                color: #fff !important;
+            }}
+            section[data-testid='stSidebar'] button:hover {{
+                background-color: {MINT_DARKEST} !important;
+                border-color: {MINT_DARKEST} !important;
+                filter: brightness(1.1);
+            }}
             </style>
             """,
             unsafe_allow_html=True,
@@ -40,8 +71,14 @@ class Sidebar:
         safety = st.sidebar.slider("Safety", min_value=1.0, max_value=5.0, value=4.0, step=0.1)
         nursing = st.sidebar.slider("Nursing Care", min_value=1.0, max_value=5.0, value=4.0, step=0.1)
 
-    dogs_allowed = st.sidebar.checkbox("Dogs Allowed (check for 🐶, uncheck for ❌)", value=True)
-    dogs_allowed_display = "🐶" if dogs_allowed else "❌"
+    # Remove class-level checkbox, move to __init__
+
+    def show_dogs_allowed(self):
+        dogs_allowed = st.sidebar.checkbox("", value=True)
+        dogs_allowed_display = "🐶" if dogs_allowed else "❌"
+        st.sidebar.write(f"Dogs Allowed: {dogs_allowed_display}")
+
+    # Call in __init__
     # st.sidebar.write(f"**Your Ratings:**\n- Food: {food}\n- Staff: {staff}\n- Atmosphere: {atmospshere}\n- Cleanliness: {cleanliness}\n- Safety: {safety}\n- Nursing Care: {nursing}\n- Dogs Allowed: {dogs_allowed_display}")
 
     def show_testimonials(self):
