@@ -1,21 +1,18 @@
 import streamlit as st
 import streamlit_folium
+from st_clickable_images import clickable_images
 from streamlit_elements import elements
 
-from st_clickable_images import clickable_images
-
-from title import app_title
 import title
+from colors import MINT_BASE, MINT_DARK, MINT_DARKER, MINT_DARKEST, MINT_LIGHT, MINT_LIGHTER
 from sidebar import Sidebar
-
-from colors import MINT_BASE, MINT_DARK, MINT_DARKER, MINT_LIGHT, MINT_LIGHTER, MINT_DARKEST
-
-import openai
-
-openai.ask_question()
+from title import app_title
+import folium
+import requests
+from streamlit_folium import st_folium
+from geopy.geocoders import Nominatim
 
 Sidebar()
-
 
 # --- NAVBAR ---
 st.markdown(
@@ -70,6 +67,7 @@ cards_data = [
         # "price": "$1,200",
         "ratings": "4.5",
         "location": "35.6160252, -82.3240143",
+        "address": "70 Sweeten Creek Road, Asheville, NC 28803",
         "food_ratings": "4.1",
         "staff_ratings": "3.9",
         "atmosphere_ratings": "4.5",
@@ -86,6 +84,7 @@ cards_data = [
         # "price": "$950",
         "ratings": "4.2",
         "location": "35.5951, -82.3515",
+        "address": "1626 Jeurgens Court, Black Mountain, NC 28711",
         "food_ratings": "3.7",
         "staff_ratings": "4.2",
         "atmosphere_ratings": "4.0",
@@ -102,6 +101,7 @@ cards_data = [
         # "price": "$1,050",
         "ratings": "4.0",
         "location": "35.6000, -82.3550",
+        "address": "1984 US Highway 70, Swannanoa, NC 28778",
         "food_ratings": "4.3",
         "staff_ratings": "3.8",
         "atmosphere_ratings": "4.2",
@@ -118,6 +118,7 @@ cards_data = [
         # "price": "$1,100",
         "ratings": "4.3",
         "location": "35.6100, -82.3300",
+        "address": "455 Victoria Road, Asheville, NC 28801",
         "food_ratings": "4.0",
         "staff_ratings": "4.1",
         "atmosphere_ratings": "3.9",
@@ -134,6 +135,7 @@ cards_data = [
         # "price": "$1,250",
         "ratings": "4.6",
         "location": "35.6200, -82.3300",
+        "address": "611 Old US Hwy 70 E, Black Mountain, NC 28711",
         "food_ratings": "3.9",
         "staff_ratings": "4.0",
         "atmosphere_ratings": "4.4",
@@ -150,6 +152,7 @@ cards_data = [
         # "price": "$900",
         "ratings": "3.9",
         "location": "35.6250, -82.3200",
+        "address": "8 Melissa Lee Drive, Jackson, NC 28711",
         "food_ratings": "4.2",
         "staff_ratings": "3.7",
         "atmosphere_ratings": "4.1",
@@ -301,10 +304,6 @@ with col1:
 
     selected_card_title = None
     if zipcode:
-        import folium
-        import requests
-        from streamlit_folium import st_folium
-
         url = f"https://nominatim.openstreetmap.org/search?postalcode={zipcode}&country=USA&format=json"
         try:
             response = requests.get(url, headers={"User-Agent": "streamlit-app"})
@@ -316,16 +315,51 @@ with col1:
                 m = folium.Map(location=[lat, lon], zoom_start=13)
                 folium.Marker([lat, lon], popup=f"Zipcode: {zipcode}").add_to(m)
 
+                # Use geocoder for converting addresses to coordinates
+                geolocator = Nominatim(user_agent="kellcareapp", timeout=5)  # Increase timeout to 5 seconds
+
                 # Add a pin for each card's location with unique popup (title)
-                card_locations = [(card["title"], card["location"]) for card in cards_data]
-                for title, loc in card_locations:
-                    latlon = [float(x.strip()) for x in loc.split(",")]
-                    folium.Marker(latlon, popup=title, icon=folium.Icon(color="blue", icon="info-sign")).add_to(m)
+                for card in cards_data:
+                    title = card["title"]
+                    address = card["address"]
+
+                    # Try to geocode the address first
+                    try:
+                        geolocator = Nominatim(user_agent="kellcareapp", timeout=10)  # Increase timeout
+                        location = geolocator.geocode(address)
+
+                        if location:
+                            # Successfully geocoded the address
+                            coordinates = [location.latitude, location.longitude]
+                            folium.Marker(coordinates, popup=f"{title}<br>{address}", tooltip=title, icon=folium.Icon(color="blue", icon="info-sign")).add_to(m)
+                        else:
+                            # Geocoding failed, fall back to the coordinates in the data
+                            if "location" in card:
+                                coordinates = [float(x.strip()) for x in card["location"].split(",")]
+                                folium.Marker(coordinates, popup=f"{title}<br>{address} (using stored coordinates)", tooltip=title, icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
+                            else:
+                                st.warning(f"No location information available for {title}")
+                    except Exception as e:
+                        # If geocoding fails, use the coordinates from the data
+                        if "location" in card:
+                            try:
+                                coordinates = [float(x.strip()) for x in card["location"].split(",")]
+                                folium.Marker(coordinates, popup=f"{title}<br>{address} (using stored coordinates)", tooltip=title, icon=folium.Icon(color="red", icon="info-sign")).add_to(m)
+                            except Exception as coord_error:
+                                st.warning(f"Failed to use coordinates for {title}: {coord_error}")
+                        else:
+                            st.warning(f"Could not geocode address and no coordinates available for {title}")
 
                 # Use st_folium to get interaction data
                 map_data = st_folium(m, width="100%", height=500)
                 if map_data and map_data.get("last_object_clicked_popup"):
-                    selected_card_title = map_data["last_object_clicked_popup"]
+                    # Extract just the title from the popup which now includes address
+                    popup_content = map_data["last_object_clicked_popup"]
+                    # Handle the HTML break tag in the popup
+                    if "<br>" in popup_content:
+                        selected_card_title = popup_content.split("<br>")[0]
+                    else:
+                        selected_card_title = popup_content
                     st.session_state["selected_card"] = selected_card_title
                 elif "selected_card" in st.session_state:
                     selected_card_title = st.session_state["selected_card"]
