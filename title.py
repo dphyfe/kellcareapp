@@ -5,7 +5,7 @@ def app_title():
     st.markdown(
         """
 		<h1 style='text-align: center; color: #00ffb7; margin-bottom: 0.5em;'>KellCare Nursing Home Finder</h1>
-		<h4 style='text-align: center; color: #444; margin-top: 0;'>Find the best care facilities near you</h4>
+		<h4 style='text-align: center; color: #00ffb7; margin-top: 0;'>Find the best care facilities near you</h4>
 	""",
         unsafe_allow_html=True,
     )

@@ -10,10 +10,55 @@ from sidebar import Sidebar
 
 from colors import MINT_BASE, MINT_DARK, MINT_DARKER, MINT_LIGHT, MINT_LIGHTER, MINT_DARKEST
 
+import openai
+
+openai.ask_question()
 
 Sidebar()
 
-# Add About page link to sidebar
+
+# --- NAVBAR ---
+st.markdown(
+    """
+    <style>
+    .navbar {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        padding: 1rem 0 0.5rem 0;
+        border-radius: 0 0 16px 16px;
+        margin-bottom: 1.5rem;
+        box-shadow: none;
+        background: none;
+    }
+    .navbar-btn {
+        background: #00664d;
+        color: #fff;
+        border: 2px solid #00ffb7;
+        border-radius: 8px;
+        padding: 0.5em 1.2em;
+        font-size: 1.05em;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s;
+    }
+    .navbar-btn:hover {
+        background: #00b384;
+    }
+    </style>
+    <div class="navbar">
+        <form action="#" method="post" style="margin:0;">
+            <button class="navbar-btn" name="nav" value="home" type="submit">Home</button>
+            <button class="navbar-btn" name="nav" value="about" type="submit">About Us</button>
+            <button class="navbar-btn" name="nav" value="services" type="submit">Services</button>
+            <button class="navbar-btn" name="nav" value="contact" type="submit">Contact Us</button>
+            <button class="navbar-btn" name="nav" value="news" type="submit">Recent News</button>
+        </form>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 cards_data = [
@@ -329,6 +374,7 @@ with col2:
         .card:hover {
             transform: translateY(-8px) scale(1.03);
             z-index: 2;
+            border: 3px solid #00ffb7;
         }
         .card-img {
             width: 100%;
@@ -470,3 +516,4 @@ with col2:
             if close_bg:
                 st.session_state["show_modal"] = False
                 st.session_state["modal_card"] = None
+input_data = "what nursing homes are around black mountain nc"

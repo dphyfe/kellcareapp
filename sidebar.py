@@ -31,7 +31,7 @@ class Sidebar:
             /* Sidebar slider track, rail, thumb, and text use mint palette */
             section[data-testid='stSidebar'] div[data-baseweb='slider'] [class*='Track'],
             section[data-testid='stSidebar'] div[data-baseweb='slider'] [class*='Rail'] {{
-                background: {MINT_BASE} !important;
+                background: #00ffb7 !important;
             }}
             section[data-testid='stSidebar'] div[data-baseweb='slider'] [class*='Thumb'],
             section[data-testid='stSidebar'] div[data-baseweb='slider'] [role='slider'] {{
@@ -63,7 +63,7 @@ class Sidebar:
 
     def show_ratings_sliders(self):
         st.sidebar.markdown("---")
-        st.sidebar.markdown("### Rate Facility Features")
+        st.sidebar.markdown(f"<h3 style='color: {MINT_BASE}; margin-bottom: 0.5em;'>Rate Facility Features</h3>", unsafe_allow_html=True)
         food = st.sidebar.slider("Food Quality", min_value=1.0, max_value=5.0, value=4.0, step=0.1)
         staff = st.sidebar.slider("Staff Friendliness", min_value=1.0, max_value=5.0, value=4.0, step=0.1)
         atmosphere = st.sidebar.slider("Atmosphere", min_value=1.0, max_value=5.0, value=4.0, step=0.1)
@@ -74,7 +74,7 @@ class Sidebar:
     # Remove class-level checkbox, move to __init__
 
     def show_dogs_allowed(self):
-        dogs_allowed = st.sidebar.checkbox("", value=True)
+        dogs_allowed = st.sidebar.checkbox("Dogs Allowed", value=True, label_visibility="collapsed")
         dogs_allowed_display = "🐶" if dogs_allowed else "❌"
         st.sidebar.write(f"Dogs Allowed: {dogs_allowed_display}")
 
