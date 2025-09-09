@@ -11,8 +11,15 @@ import folium
 import requests
 from streamlit_folium import st_folium
 from geopy.geocoders import Nominatim
+from google import genai
+import json
+import re
 
 Sidebar()
+
+API_KEY = "AIzaSyCne1hbHjegFHng0YinthelIvzk4oj3UAc"
+client = genai.Client(api_key=API_KEY)  # connect to backend api server with API key
+
 
 # --- NAVBAR ---
 st.markdown(
@@ -288,7 +295,57 @@ def get_zipcodes_from_city(city, state_abbr="nc"):
 with col1:
     app_title()
     st.title("Map of Your Location by Zipcode")
-    zipcode = st.text_input("Enter your zipcode:")
+
+    zipcode = st.text_input("Search nursing homes in your area:")
+    if zipcode:
+        ai_input_data = f"""
+        list the top 6 nursing homes around {zipcode}`
+        format your response like this:
+        {{
+        "title": "The Laurels at Greentree Ridge",
+        "img": "https://lh3.googleusercontent.com/p/AF1QipNMdg8lLBIb4Z1KSaHLb9-Xs6tSOl25SRLHht7d=s680-w680-h510-rw",
+        "details": "Details for nursing home",
+        "ratings": "4.5",
+        "address": "70 Sweeten Creek Road, Asheville, NC 28803",
+        }}
+        """
+        # make the request o <- i
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=ai_input_data,
+        )
+        print(response.text)
+
+        # Parse the response text into Python objects
+        # Only make a single request attempt - don't make additional requests
+        try:
+            # First attempt: try to parse the entire response directly
+            cards_data_new = json.loads(response.text)
+            # If successful, update the cards_data
+            cards_data = cards_data_new
+        except json.JSONDecodeError:
+            print("########### JSON Decode Error ###########")
+            # If direct parsing fails, use a more robust regex approach
+            # This pattern is more lenient to handle multi-line JSON with various whitespace
+            json_pattern = r"\[\s*\{.*?\}\s*(?:,\s*\{.*?\}\s*)*\]"
+            matches = re.findall(json_pattern, response.text, re.DOTALL)
+
+            if matches:
+                try:
+                    # Try to parse the found JSON array
+                    cards_data_new = json.loads(matches[0])
+                    # If successful, update the cards_data
+                    cards_data = cards_data_new
+                except json.JSONDecodeError:
+                    # If parsing the array fails, just show a warning and keep original cards_data
+                    st.warning("Couldn't parse nursing home data properly. Using default data.")
+            else:
+                # No JSON array found, keep original cards_data
+                st.warning("Couldn't find valid JSON data in the response. Using default data.")
+        except Exception as e:
+            # Any other errors, keep original cards_data
+            st.error(f"Error processing API response: {e}")
+
     st.markdown("**Or enter a city and state to get a zipcode:**")
     city = st.text_input("City name", placeholder="city", value="black mountain")
     state_abbr = st.text_input("State abbreviation (e.g., NC)", placeholder="state", value="NC")
@@ -550,4 +607,3 @@ with col2:
             if close_bg:
                 st.session_state["show_modal"] = False
                 st.session_state["modal_card"] = None
-input_data = "what nursing homes are around black mountain nc"
