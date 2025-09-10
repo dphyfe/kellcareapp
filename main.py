@@ -2,6 +2,8 @@ import streamlit as st
 import streamlit_folium
 from st_clickable_images import clickable_images
 from streamlit_elements import elements
+import os
+from dotenv import load_dotenv
 
 import title
 from colors import MINT_BASE, MINT_DARK, MINT_DARKER, MINT_DARKEST, MINT_LIGHT, MINT_LIGHTER
@@ -15,10 +17,11 @@ from google import genai
 import json
 import re
 
-Sidebar()
-
-API_KEY = "AIzaSyCne1hbHjegFHng0YinthelIvzk4oj3UAc"
+load_dotenv()
+API_KEY = os.getenv("API_KEY")
 client = genai.Client(api_key=API_KEY)  # connect to backend api server with API key
+
+Sidebar()
 
 
 # --- NAVBAR ---
