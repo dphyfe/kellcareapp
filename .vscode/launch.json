@@ -1,14 +1,27 @@
 {
+    "version": "0.2.0",
     "configurations": [
         {
             "type": "debugpy",
             "request": "launch",
-            "name": "Launch Streamlit App",
+            "name": "Streamlit: With Auto-Refresh",
             "module": "streamlit",
             "args": [
                 "run",
                 "${workspaceFolder}/main.py"
             ]
+        },
+        {
+            "type": "debugpy",
+            "request": "launch",
+            "name": "Streamlit: No Auto-Refresh",
+            "module": "streamlit",
+            "args": [
+                "run",
+                "${workspaceFolder}/main.py",
+                "--server.runOnSave=false"
+            ],
+            "justMyCode": true
         }
     ]
 }

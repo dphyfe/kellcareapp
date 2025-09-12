@@ -2,8 +2,6 @@ import streamlit as st
 import streamlit_folium
 from st_clickable_images import clickable_images
 from streamlit_elements import elements
-import os
-from dotenv import load_dotenv
 
 import title
 from colors import MINT_BASE, MINT_DARK, MINT_DARKER, MINT_DARKEST, MINT_LIGHT, MINT_LIGHTER
@@ -16,13 +14,15 @@ from geopy.geocoders import Nominatim
 from google import genai
 import json
 import re
+from dotenv import load_dotenv
+import os
 
 load_dotenv()
+
 API_KEY = os.getenv("API_KEY")
 client = genai.Client(api_key=API_KEY)  # connect to backend api server with API key
 
 Sidebar()
-
 
 # --- NAVBAR ---
 st.markdown(
@@ -299,55 +299,83 @@ with col1:
     app_title()
     st.title("Map of Your Location by Zipcode")
 
-    zipcode = st.text_input("Search nursing homes in your area:")
-    if zipcode:
-        ai_input_data = f"""
-        list the top 6 nursing homes around {zipcode}`
-        format your response like this:
-        {{
-        "title": "The Laurels at Greentree Ridge",
-        "img": "https://lh3.googleusercontent.com/p/AF1QipNMdg8lLBIb4Z1KSaHLb9-Xs6tSOl25SRLHht7d=s680-w680-h510-rw",
-        "details": "Details for nursing home",
-        "ratings": "4.5",
-        "address": "70 Sweeten Creek Road, Asheville, NC 28803",
-        }}
-        """
-        # make the request o <- i
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=ai_input_data,
-        )
-        print(response.text)
+    # Replace the simple text input with a form
+    with st.form("search_form"):
+        zipcode = st.text_input("Search nursing homes in your area:")
+        submitted = st.form_submit_button("Search")
 
-        # Parse the response text into Python objects
-        # Only make a single request attempt - don't make additional requests
-        try:
-            # First attempt: try to parse the entire response directly
-            cards_data_new = json.loads(response.text)
-            # If successful, update the cards_data
-            cards_data = cards_data_new
-        except json.JSONDecodeError:
-            print("########### JSON Decode Error ###########")
-            # If direct parsing fails, use a more robust regex approach
-            # This pattern is more lenient to handle multi-line JSON with various whitespace
-            json_pattern = r"\[\s*\{.*?\}\s*(?:,\s*\{.*?\}\s*)*\]"
-            matches = re.findall(json_pattern, response.text, re.DOTALL)
+        # Only make the API call when form is submitted
+        if submitted and zipcode:
+            ai_input_data = f"""
+            list the top 6 nursing homes around {zipcode}`
+            format your response like this:
+            {{
+            "title": "The Laurels at Greentree Ridge",
+            "img": "https://lh3.googleusercontent.com/p/AF1QipNMdg8lLBIb4Z1KSaHLb9-Xs6tSOl25SRLHht7d=s680-w680-h510-rw",
+            "details": "Details for Card 1",
+            "ratings": "4.5",
+            "address": "70 Sweeten Creek Road, Asheville, NC 28803",
+            "food_ratings": "4.1",
+            "staff_ratings": "3.9",
+            "atmosphere_ratings": "4.5",
+            "cleanliness_ratings": "4.2",
+            "safety_ratings": "3.8",
+            "dogs_allowed": "true",
+            "nursing_care_ratings": "4.7",
+            }}
+            """
+            # make the request o <- i
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=ai_input_data,
+            )
+            print(response.text)
 
-            if matches:
-                try:
-                    # Try to parse the found JSON array
-                    cards_data_new = json.loads(matches[0])
-                    # If successful, update the cards_data
-                    cards_data = cards_data_new
-                except json.JSONDecodeError:
-                    # If parsing the array fails, just show a warning and keep original cards_data
-                    st.warning("Couldn't parse nursing home data properly. Using default data.")
-            else:
-                # No JSON array found, keep original cards_data
-                st.warning("Couldn't find valid JSON data in the response. Using default data.")
-        except Exception as e:
-            # Any other errors, keep original cards_data
-            st.error(f"Error processing API response: {e}")
+            # Parse the response text into Python objects
+            # Only make a single request attempt - don't make additional requests
+            try:
+                # First attempt: try to parse the entire response directly
+                cards_data_new = json.loads(response.text)
+                # If successful, update the cards_data
+                cards_data = cards_data_new
+            except json.JSONDecodeError:
+                print("########### JSON Decode Error ###########")
+                # If direct parsing fails, use a more robust regex approach
+                # This pattern is more lenient to handle multi-line JSON with various whitespace
+                json_pattern = r"\[\s*\{.*?\}\s*(?:,\s*\{.*?\}\s*)*\]"
+                matches = re.findall(json_pattern, response.text, re.DOTALL)
+
+                if matches:
+                    try:
+                        # Try to parse the found JSON array
+                        cards_data_new = json.loads(matches[0])
+                        # If successful, update the cards_data
+                        cards_data = cards_data_new
+                    except json.JSONDecodeError:
+                        # If parsing the array fails, just show a warning and keep original cards_data
+                        st.warning("Couldn't parse nursing home data properly. Using default data.")
+                else:
+                    # No JSON array found, keep original cards_data
+                    st.warning("Couldn't find valid JSON data in the response. Using default data.")
+            except Exception as e:
+                # Any other errors, keep original cards_data
+                st.error(f"Error processing API response: {e}")
+
+    # Extract zipcode from the address field in cards_data
+    zipcode_from_response = None
+    if cards_data and len(cards_data) > 0:
+        # Try to extract zipcode from the first card's address
+        first_card = cards_data[0]
+        if "address" in first_card:
+            address = first_card["address"]
+            # US ZIP codes are typically 5 digits or 5+4 digits
+            # Extract using regex pattern
+            import re
+
+            zip_match = re.search(r"(\d{5})(?:-\d{4})?", address)
+            if zip_match:
+                zipcode_from_response = zip_match.group(1)
+                st.info(f"Found zipcode in response: {zipcode_from_response}")
 
     st.markdown("**Or enter a city and state to get a zipcode:**")
     city = st.text_input("City name", placeholder="city", value="black mountain")
@@ -363,8 +391,8 @@ with col1:
             st.error("No zipcodes found for that city and state.")
 
     selected_card_title = None
-    if zipcode:
-        url = f"https://nominatim.openstreetmap.org/search?postalcode={zipcode}&country=USA&format=json"
+    if zipcode_from_response:
+        url = f"https://nominatim.openstreetmap.org/search?postalcode={zipcode_from_response}&country=USA&format=json"
         try:
             response = requests.get(url, headers={"User-Agent": "streamlit-app"})
             data = response.json()
@@ -373,7 +401,7 @@ with col1:
                 lon = float(data[0]["lon"])
                 st.success(f"Location found: {lat}, {lon}")
                 m = folium.Map(location=[lat, lon], zoom_start=13)
-                folium.Marker([lat, lon], popup=f"Zipcode: {zipcode}").add_to(m)
+                folium.Marker([lat, lon], popup=f"Zipcode: {zipcode_from_response}").add_to(m)
 
                 # Use geocoder for converting addresses to coordinates
                 geolocator = Nominatim(user_agent="kellcareapp", timeout=5)  # Increase timeout to 5 seconds
